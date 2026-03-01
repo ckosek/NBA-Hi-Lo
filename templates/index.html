@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NBA Stat Game</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>Who Had the Higher Career Average?</h1>
+
+<div class="scoreboard">
+    <div class="score-item">
+        <span class="score-label">✅ Correct</span>
+        <span class="score-value" id="score-correct">0</span>
+    </div>
+    <div class="score-item">
+        <span class="score-label">❌ Wrong</span>
+        <span class="score-value" id="score-wrong">0</span>
+    </div>
+    <div class="score-item">
+        <span class="score-label">🔥 Streak</span>
+        <span class="score-value" id="score-streak">0</span>
+    </div>
+    <div class="score-item">
+        <span class="score-label">🏆 Best</span>
+        <span class="score-value" id="score-best">0</span>
+    </div>
+</div>
+
+<h2 id="stat-category"></h2>
+
+<div class="container">
+    <div class="card" id="card0" onclick="choose(0)">
+        <img id="img0" />
+        <h3 id="name0"></h3>
+        <div class="stat-reveal" id="reveal0"></div>
+    </div>
+
+    <div class="vs-badge">VS</div>
+
+    <div class="card" id="card1" onclick="choose(1)">
+        <img id="img1" />
+        <h3 id="name1"></h3>
+        <div class="stat-reveal" id="reveal1"></div>
+    </div>
+</div>
+
+<div id="result-area">
+    <h2 id="result"></h2>
+    <button id="next-btn" onclick="newGame()" style="display:none">Next Round ▶</button>
+</div>
+
+<script>
+let currentGame;
+let score = { correct: 0, wrong: 0, streak: 0 };
+let answered = false;
+
+const STAT_LABELS = { pts: "Points", reb: "Rebounds", ast: "Assists" };
+
+// Load best streak from server on page load
+function loadBestStreak() {
+    fetch("/best_streak")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("score-best").innerText = data.best_streak;
+        });
+}
+
+function newGame() {
+    answered = false;
+
+    // Reset card states
+    [0, 1].forEach(i => {
+        const card = document.getElementById("card" + i);
+        card.classList.remove("winner", "loser", "disabled");
+        document.getElementById("reveal" + i).innerText = "";
+        document.getElementById("reveal" + i).style.display = "none";
+    });
+
+    document.getElementById("result").innerText = "";
+    document.getElementById("next-btn").style.display = "none";
+
+    fetch("/new_game")
+        .then(res => res.json())
+        .then(data => {
+            currentGame = data;
+            const label = STAT_LABELS[data.stat] || data.stat.toUpperCase();
+            document.getElementById("stat-category").innerText = `📊 ${label} per game`;
+
+            data.players.forEach((p, i) => {
+                document.getElementById("name" + i).innerText = p.name;
+                const img = document.getElementById("img" + i);
+                img.src = p.image;
+                img.onerror = () => img.src = "https://cdn.nba.com/headshots/nba/latest/1040x760/fallback.png";
+            });
+        })
+        .catch(() => {
+            document.getElementById("result").innerText = "⚠️ Failed to load. Retrying...";
+            setTimeout(newGame, 2000);
+        });
+}
+
+function choose(index) {
+    if (answered || !currentGame) return;
+    answered = true;
+
+    const stat = currentGame.stat;
+    const v0 = currentGame.players[0].stats[stat];
+    const v1 = currentGame.players[1].stats[stat];
+
+    const winnerIndex = (v0 >= v1) ? 0 : 1;
+    const correct = index === winnerIndex;
+
+    // Reveal stats
+    [0, 1].forEach(i => {
+        const revealEl = document.getElementById("reveal" + i);
+        revealEl.innerText = currentGame.players[i].stats[stat];
+        revealEl.style.display = "block";
+
+        const card = document.getElementById("card" + i);
+        if (i === winnerIndex) {
+            card.classList.add("winner");
+        } else {
+            card.classList.add("loser");
+        }
+        card.classList.add("disabled");
+    });
+
+    // Update score
+    if (correct) {
+        score.correct++;
+        score.streak++;
+        document.getElementById("result").innerText = "✅ Correct!";
+        document.getElementById("result").className = "result-correct";
+
+        // Save to server if this beats the best streak
+        fetch(`/update_streak/${score.streak}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("score-best").innerText = data.best_streak;
+            });
+    } else {
+        score.wrong++;
+        score.streak = 0;
+        const correctName = currentGame.players[winnerIndex].name;
+        document.getElementById("result").innerText = `❌ Wrong! ${correctName} had the higher average.`;
+        document.getElementById("result").className = "result-wrong";
+    }
+
+    // Update scoreboard
+    document.getElementById("score-correct").innerText = score.correct;
+    document.getElementById("score-wrong").innerText = score.wrong;
+    document.getElementById("score-streak").innerText = score.streak;
+
+    document.getElementById("next-btn").style.display = "inline-block";
+}
+
+loadBestStreak();
+newGame();
+</script>
+
+</body>
+</html>
