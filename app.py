@@ -91,11 +91,11 @@ SEED_PLAYERS = [
     ("Scottie Pippen",          979),
     ("Gary Payton",             56),
     ("Alonzo Mourning",         272),
-    ("Reggie Miller",           670),
+    ("Reggie Miller",           397),
     ("John Stockton",           304),
     ("Karl Malone",             252),
     ("Hakeem Olajuwon",         165),
-    ("David Robinson",          397),
+    ("David Robinson",          764),
     ("Penny Hardaway",          734),
     ("Grant Hill",              255),
 ]

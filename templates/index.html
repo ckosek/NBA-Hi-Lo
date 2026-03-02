@@ -4,6 +4,7 @@
     <title>NBA Hi-Lo</title>
     <link rel="icon" type="image/png" href="/static/Nba-hi-lo-logo.png">
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
@@ -104,6 +105,30 @@ function newGame() {
         });
 }
 
+function fireConfetti() {
+    const duration = 2500;
+    const end = Date.now() + duration;
+    const colors = ["#f5a218", "#17408b", "#c9082a", "#ffffff"];
+
+    (function frame() {
+        confetti({
+            particleCount: 6,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: colors,
+        });
+        confetti({
+            particleCount: 6,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: colors,
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+}
+
 function choose(index) {
     if (answered || !currentGame) return;
     answered = true;
@@ -112,37 +137,40 @@ function choose(index) {
     const v0 = currentGame.players[0].stats[stat];
     const v1 = currentGame.players[1].stats[stat];
 
+    const isTie = v0 === v1;
     const winnerIndex = (v0 >= v1) ? 0 : 1;
-    const correct = index === winnerIndex;
+    const correct = isTie || index === winnerIndex;
 
-    // Reveal stats
+    // Reveal stats and style cards
     [0, 1].forEach(i => {
         const revealEl = document.getElementById("reveal" + i);
         revealEl.innerText = currentGame.players[i].stats[stat];
         revealEl.style.display = "block";
 
         const card = document.getElementById("card" + i);
-        if (i === winnerIndex) {
+        card.classList.add("disabled");
+
+        if (isTie) {
+            card.classList.add("winner");  // both green on a tie
+        } else if (i === winnerIndex) {
             card.classList.add("winner");
         } else {
             card.classList.add("loser");
         }
-        card.classList.add("disabled");
     });
 
     // Update score
-    if (correct) {
+    if (isTie) {
+        score.correct++;
+        score.streak++;
+        document.getElementById("result").innerText = `🤝 It's a tie! Both had ${v0} — you get the point!`;
+        document.getElementById("result").className = "result-correct";
+        fireConfetti();
+    } else if (correct) {
         score.correct++;
         score.streak++;
         document.getElementById("result").innerText = "✅ Correct!";
         document.getElementById("result").className = "result-correct";
-
-        // Save to server if this beats the best streak
-        fetch(`/update_streak/${score.streak}`)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById("score-best").innerText = data.best_streak;
-            });
     } else {
         score.wrong++;
         score.streak = 0;
@@ -155,6 +183,15 @@ function choose(index) {
     document.getElementById("score-correct").innerText = score.correct;
     document.getElementById("score-wrong").innerText = score.wrong;
     document.getElementById("score-streak").innerText = score.streak;
+
+    // Save best streak if correct
+    if (correct) {
+        fetch(`/update_streak/${score.streak}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("score-best").innerText = data.best_streak;
+            });
+    }
 
     document.getElementById("next-btn").style.display = "inline-block";
 }
