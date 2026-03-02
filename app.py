@@ -96,7 +96,7 @@ SEED_PLAYERS = [
     ("Karl Malone",             252),
     ("Hakeem Olajuwon",         165),
     ("David Robinson",          764),
-    ("Penny Hardaway",          734),
+    ("Penny Hardaway",          358),
     ("Grant Hill",              255),
 ]
 
