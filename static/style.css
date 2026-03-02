@@ -8,10 +8,24 @@ body {
     padding: 20px;
 }
 
-h1 {
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-    letter-spacing: 1px;
+.site-header {
+    margin-bottom: 16px;
+}
+
+.logo {
+    height: 100px;
+    width: auto;
+    display: block;
+    margin: 0 auto 10px;
+    image-rendering: crisp-edges;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    color: #aaa;
+    margin: 0;
+    font-weight: normal;
+    letter-spacing: 0.5px;
 }
 
 #stat-category {
@@ -140,7 +154,7 @@ h1 {
 .result-wrong   { color: #e74c3c; }
 
 #next-btn {
-    background: #e8a020;
+    background: #f5a218;
     color: #111;
     border: none;
     padding: 12px 30px;
