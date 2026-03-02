@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: nba-hilo
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 4 -b 0.0.0.0:8000 app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
