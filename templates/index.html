@@ -59,6 +59,7 @@
 let currentGame;
 let score = { correct: 0, wrong: 0, streak: 0 };
 let answered = false;
+let loading = false;
 
 const STAT_LABELS = { pts: "Points", reb: "Rebounds", ast: "Assists" };
 
@@ -71,18 +72,37 @@ function loadBestStreak() {
         });
 }
 
+function setLoading(state) {
+    loading = state;
+    const btn = document.getElementById("next-btn");
+    btn.disabled = state;
+    btn.innerText = state ? "Loading..." : "Next Round ▶";
+    // Lock cards during load
+    [0, 1].forEach(i => {
+        const card = document.getElementById("card" + i);
+        if (state) {
+            card.classList.add("disabled");
+        } else {
+            card.classList.remove("disabled");
+        }
+    });
+}
+
 function newGame() {
+    if (loading) return;
+    setLoading(true);
     answered = false;
 
     // Reset card states
     [0, 1].forEach(i => {
         const card = document.getElementById("card" + i);
-        card.classList.remove("winner", "loser", "disabled");
+        card.classList.remove("winner", "loser");
         document.getElementById("reveal" + i).innerText = "";
         document.getElementById("reveal" + i).style.display = "none";
     });
 
     document.getElementById("result").innerText = "";
+    document.getElementById("result").className = "";
     document.getElementById("next-btn").style.display = "none";
 
     fetch("/new_game")
@@ -102,6 +122,9 @@ function newGame() {
         .catch(() => {
             document.getElementById("result").innerText = "⚠️ Failed to load. Retrying...";
             setTimeout(newGame, 2000);
+        })
+        .finally(() => {
+            setLoading(false);
         });
 }
 
@@ -130,7 +153,7 @@ function fireConfetti() {
 }
 
 function choose(index) {
-    if (answered || !currentGame) return;
+    if (answered || loading || !currentGame) return;
     answered = true;
 
     const stat = currentGame.stat;
