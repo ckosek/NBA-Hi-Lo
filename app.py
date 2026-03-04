@@ -78,7 +78,7 @@ SEED_PLAYERS = [
     ("Joe Johnson", 2207),
     ("Paul Pierce", 1718),
     ("Ray Allen", 951),
-    ("Gilbert Arenas", 2394),
+    ("Gilbert Arenas", 2240),
     ("Tracy McGrady", 1503),
     ("Yao Ming", 2397),
     ("Antawn Jamison", 1712),
@@ -90,7 +90,7 @@ SEED_PLAYERS = [
     ("Patrick Ewing", 121),
     ("Scottie Pippen", 979),
     ("Gary Payton", 56),
-    ("Alonzo Mourning", 272),
+    ("Alonzo Mourning", 297),
     ("Reggie Miller", 397),
     ("John Stockton", 304),
     ("Karl Malone", 252),
@@ -115,6 +115,7 @@ SEED_PLAYERS = [
     ("Cedi Osman", 1626224),
     ("Jarrett Allen", 1628386),
     ("Dennis Rodman", 23),
+    ("Carmelo Anthony", 2546),
 ]
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
