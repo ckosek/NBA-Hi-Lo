@@ -98,6 +98,23 @@ SEED_PLAYERS = [
     ("David Robinson", 764),
     ("Penny Hardaway", 358),
     ("Grant Hill", 255),
+    ("Wilt Chamberlain", 76375),
+    ("Jerry West", 78497),
+    ("Mo Williams", 2590),
+    ("Kyrie Irving", 202681),
+    ("Jayson Tatum", 1628369),
+    ("Bill Russell", 78049),
+    ("Wes Unseld", 78392),
+    ("Dwight Howard", 2730),
+    ("Kevin Love", 201567),
+    ("Rajon Rondo", 200765),
+    ("Kevin Garnett", 708),
+    ("Oscar Robertson", 600015),
+    ("John Wall", 202322),
+    ("Darius Garland", 1629636),
+    ("Cedi Osman", 1626224),
+    ("Jarrett Allen", 1628386),
+    ("Dennis Rodman", 23),
 ]
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────

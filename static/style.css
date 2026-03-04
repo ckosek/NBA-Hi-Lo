@@ -169,3 +169,22 @@ body {
     background: #f0b030;
     transform: scale(1.04);
 }
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+footer {
+    margin-top: 40px;
+    padding: 20px;
+    border-top: 1px solid #2a2a2a;
+    color: #555;
+    font-size: 0.85rem;
+}
+
+footer a {
+    color: #888;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: #f5a218;
+}
