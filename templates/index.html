@@ -11,6 +11,21 @@
 <div class="site-header">
     <img src="/static/Nba-hi-lo-logo.png" alt="NBA Hi-Lo" class="logo">
     <h2 class="tagline">Who Had the Higher Career Average?</h2>
+    <button class="help-btn" onclick="toggleHelp()">How to Play</button>
+</div>
+
+<div id="help-overlay" onclick="toggleHelp()">
+    <div id="help-modal" onclick="event.stopPropagation()">
+        <h2>How to Play</h2>
+        <ul>
+            <li>Two NBA players are shown with a stat category — <strong>Points</strong>, <strong>Rebounds</strong>, or <strong>Assists</strong> per game.</li>
+            <li>Click the player you think has the <strong>higher career average</strong> for that stat.</li>
+            <li>Both players' actual averages are revealed after your pick.</li>
+            <li>A <strong>tie</strong> counts as a win for both.</li>
+            <li>Build the longest streak you can — your <strong>personal best</strong> is saved across sessions.</li>
+        </ul>
+        <button class="help-close-btn" onclick="toggleHelp()">Got it!</button>
+    </div>
 </div>
 
 <div class="scoreboard">
@@ -27,8 +42,12 @@
         <span class="score-value" id="score-streak">0</span>
     </div>
     <div class="score-item">
-        <span class="score-label">🏆 Best</span>
+        <span class="score-label">🏆 My Best</span>
         <span class="score-value" id="score-best">0</span>
+    </div>
+    <div class="score-item">
+        <span class="score-label">🌍 Global Best</span>
+        <span class="score-value" id="score-global">0</span>
     </div>
 </div>
 
@@ -63,12 +82,28 @@ let loading = false;
 
 const STAT_LABELS = { pts: "Points", reb: "Rebounds", ast: "Assists" };
 
-// Load best streak from server on page load
+// ── UUID: generate once, persist in localStorage ───────────────────────────
+function getUUID() {
+    let uuid = localStorage.getItem("nba_hilo_uuid");
+    if (!uuid) {
+        uuid = crypto.randomUUID();
+        localStorage.setItem("nba_hilo_uuid", uuid);
+    }
+    return uuid;
+}
+
+// ── Help modal ─────────────────────────────────────────────────────────────
+function toggleHelp() {
+    document.getElementById("help-overlay").classList.toggle("visible");
+}
+
+// ── Load both streaks on page load ─────────────────────────────────────────
 function loadBestStreak() {
-    fetch("/best_streak")
+    fetch(`/best_streak/${getUUID()}`)
         .then(res => res.json())
         .then(data => {
             document.getElementById("score-best").innerText = data.best_streak;
+            document.getElementById("score-global").innerText = data.global_best;
         });
 }
 
@@ -209,10 +244,11 @@ function choose(index) {
 
     // Save best streak if correct
     if (correct) {
-        fetch(`/update_streak/${score.streak}`)
+        fetch(`/update_streak/${getUUID()}/${score.streak}`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById("score-best").innerText = data.best_streak;
+                document.getElementById("score-global").innerText = data.global_best;
             });
     }
 
@@ -229,13 +265,8 @@ newGame();
         &nbsp;|&nbsp;
         <a href="https://linkedin.com/in/chase-kosek" target="_blank">LinkedIn</a>
         &nbsp;|&nbsp;
-        <a href="mailto:chase.m.kosek@gmail.com">Contact</a>
+        <a href="/cdn-cgi/l/email-protection#bbd8d3dac8de95d695d0d4c8ded0fbdcd6dad2d795d8d4d6">Contact</a>
     </p>
 </footer>
 
-<script>
-    document.getElementById("year").innerText = new Date().getFullYear();
-</script>
-
-</body>
-</html>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudfla

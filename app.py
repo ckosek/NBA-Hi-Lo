@@ -149,11 +149,10 @@ def init_db():
         """)
         db.execute("""
             CREATE TABLE IF NOT EXISTS scores (
-                id           INTEGER PRIMARY KEY CHECK (id = 1),
+                uuid         TEXT PRIMARY KEY,
                 best_streak  INTEGER DEFAULT 0
             )
         """)
-        db.execute("INSERT OR IGNORE INTO scores (id, best_streak) VALUES (1, 0)")
         db.commit()
 
         # Insert seed players (ignore duplicates)
@@ -254,24 +253,32 @@ def new_game():
 
 
 
-@app.route("/best_streak")
-def best_streak():
+@app.route("/best_streak/<uuid>")
+def best_streak(uuid):
     db = get_db()
-    row = db.execute("SELECT best_streak FROM scores WHERE id = 1").fetchone()
-    return jsonify({"best_streak": row["best_streak"]})
+    personal = db.execute("SELECT best_streak FROM scores WHERE uuid = ?", (uuid,)).fetchone()
+    global_row = db.execute("SELECT MAX(best_streak) as best FROM scores").fetchone()
+    return jsonify({
+        "best_streak": personal["best_streak"] if personal else 0,
+        "global_best": global_row["best"] if global_row["best"] else 0,
+    })
 
 
-@app.route("/update_streak/<int:streak>")
-def update_streak(streak):
+@app.route("/update_streak/<uuid>/<int:streak>")
+def update_streak(uuid, streak):
     db = get_db()
-    # Only update if the new streak beats the stored record
-    db.execute(
-        "UPDATE scores SET best_streak = ? WHERE id = 1 AND ? > best_streak",
-        (streak, streak)
-    )
+    db.execute("""
+        INSERT INTO scores (uuid, best_streak) VALUES (?, ?)
+        ON CONFLICT(uuid) DO UPDATE SET best_streak = ?
+        WHERE excluded.best_streak > best_streak
+    """, (uuid, streak, streak))
     db.commit()
-    row = db.execute("SELECT best_streak FROM scores WHERE id = 1").fetchone()
-    return jsonify({"best_streak": row["best_streak"]})
+    personal = db.execute("SELECT best_streak FROM scores WHERE uuid = ?", (uuid,)).fetchone()
+    global_row = db.execute("SELECT MAX(best_streak) as best FROM scores").fetchone()
+    return jsonify({
+        "best_streak": personal["best_streak"],
+        "global_best": global_row["best"] if global_row["best"] else 0,
+    })
 
 
 @app.route("/add_player/<int:nba_id>/<name>")
