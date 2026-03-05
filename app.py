@@ -147,6 +147,16 @@ def init_db():
                 cached   INTEGER DEFAULT 0
             )
         """)
+
+        # Auto-migrate scores table: drop old single-row schema if uuid col missing
+        try:
+            cols = [r[1] for r in db.execute("PRAGMA table_info(scores)").fetchall()]
+            if cols and "uuid" not in cols:
+                db.execute("DROP TABLE scores")
+                db.commit()
+        except Exception:
+            pass
+
         db.execute("""
             CREATE TABLE IF NOT EXISTS scores (
                 uuid         TEXT PRIMARY KEY,
