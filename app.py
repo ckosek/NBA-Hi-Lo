@@ -278,17 +278,30 @@ def best_streak(uuid):
 @app.route("/update_streak/<uuid>/<int:streak>")
 def update_streak(uuid, streak):
     db = get_db()
+    
+    # Grab global best before the update
+    old_global = db.execute("SELECT MAX(best_streak) as best FROM scores").fetchone()
+    old_best = old_global["best"] if old_global["best"] else 0
+
     db.execute("""
         INSERT INTO scores (uuid, best_streak) VALUES (?, ?)
         ON CONFLICT(uuid) DO UPDATE SET best_streak = ?
         WHERE excluded.best_streak > best_streak
     """, (uuid, streak, streak))
     db.commit()
+
     personal = db.execute("SELECT best_streak FROM scores WHERE uuid = ?", (uuid,)).fetchone()
     global_row = db.execute("SELECT MAX(best_streak) as best FROM scores").fetchone()
+    global_best = global_row["best"] if global_row["best"] else 0
+
+    if global_best > old_best:
+        print("================\n")
+        print(f"New global best streak: {global_best} (previous: {old_best})")
+        print("================\n")
+
     return jsonify({
         "best_streak": personal["best_streak"],
-        "global_best": global_row["best"] if global_row["best"] else 0,
+        "global_best": global_best,
     })
 
 
