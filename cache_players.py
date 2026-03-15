@@ -158,6 +158,9 @@ def main():
 
     success = 0
     failed = []
+    bypass_list = {
+        'Anfernee Hardaway',  # Penny Hardaway
+    }
 
     for i, player in enumerate(players, 1):
         name = player["name"]
@@ -166,7 +169,8 @@ def main():
 
         try:
             stats, api_name = fetch_career_stats(nba_id)
-
+            if api_name in bypass_list:
+                api_name = name
             # Name check
             if api_name and not names_match(name, api_name):
                 print(f"\n  ⚠️  NAME MISMATCH — expected '{name}', API returned '{api_name}'")
