@@ -102,11 +102,8 @@ SEED_PLAYERS = [
     ("Wilt Chamberlain", 76375),
     ("Jerry West", 78497),
     ("Mo Williams", 2590),
-    ("Kyrie Irving", 202681),
-    ("Jayson Tatum", 1628369),
     ("Bill Russell", 78049),
     ("Wes Unseld", 78392),
-    ("Dwight Howard", 2730),
     ("Kevin Love", 201567),
     ("Rajon Rondo", 200765),
     ("Kevin Garnett", 708),
@@ -116,7 +113,15 @@ SEED_PLAYERS = [
     ("Cedi Osman", 1626224),
     ("Jarrett Allen", 1628386),
     ("Dennis Rodman", 23),
-    ("Carmelo Anthony", 2546),
+    ("Jaylen Brown", 1627759),
+    ("De'Aaron Fox", 1628368),
+    ("Nikola Vučević", 202696),
+    ("Domantas Sabonis", 1627734),
+    ("Derrick Rose", 201565),
+    ("Bob Cousy", 600003),
+    ("Kareem Abdul-Jabbar", 76003),
+    ("Julius Erving", 76681),
+    ("Moses Malone", 77449),
 ]
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────

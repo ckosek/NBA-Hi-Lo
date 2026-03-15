@@ -128,11 +128,23 @@ def init_db(db):
     print(f"✅ DB initialised with {len(SEED_PLAYERS)} seed players\n")
 
 
+def seed_high_score(db, score=15):
+    """Seed a global high score baseline so the leaderboard isn't empty."""
+    db.execute("""
+        INSERT INTO scores (uuid, best_streak) VALUES ('global-baseline', ?)
+        ON CONFLICT(uuid) DO UPDATE SET best_streak = ?
+        WHERE excluded.best_streak > best_streak
+    """, (score, score))
+    db.commit()
+    print(f"🏆 Global baseline high score set to {score}\n")
+
+
 def main():
     db = sqlite3.connect(DATABASE)
     db.row_factory = sqlite3.Row
 
     init_db(db)
+    seed_high_score(db, score=15)
 
     players = db.execute("SELECT * FROM players WHERE cached = 0").fetchall()
     total = len(players)
@@ -146,9 +158,6 @@ def main():
 
     success = 0
     failed = []
-    bypass_list = {
-    'Anfernee Hardaway',  # Penny Hardaway
-    }
 
     for i, player in enumerate(players, 1):
         name = player["name"]
@@ -157,8 +166,7 @@ def main():
 
         try:
             stats, api_name = fetch_career_stats(nba_id)
-            if api_name in bypass_list:
-                api_name = name
+
             # Name check
             if api_name and not names_match(name, api_name):
                 print(f"\n  ⚠️  NAME MISMATCH — expected '{name}', API returned '{api_name}'")
