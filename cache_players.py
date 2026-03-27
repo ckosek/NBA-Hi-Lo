@@ -128,7 +128,7 @@ def init_db(db):
     print(f"✅ DB initialised with {len(SEED_PLAYERS)} seed players\n")
 
 
-def seed_high_score(db, score=15):
+def seed_high_score(db, score=22):
     """Seed a global high score baseline so the leaderboard isn't empty."""
     db.execute("""
         INSERT INTO scores (uuid, best_streak) VALUES ('global-baseline', ?)
@@ -144,7 +144,7 @@ def main():
     db.row_factory = sqlite3.Row
 
     init_db(db)
-    seed_high_score(db, score=15)
+    seed_high_score(db, score=22)
 
     players = db.execute("SELECT * FROM players WHERE cached = 0").fetchall()
     total = len(players)
